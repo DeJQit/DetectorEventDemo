@@ -3,13 +3,12 @@ package com.dejqit.detectoreventdemo.model
 import com.dejqit.detectoreventdemo.api.EventApi
 import com.dejqit.detectoreventdemo.api.EventClient
 import kotlinx.serialization.*
-import kotlinx.serialization.Optional
-import kotlinx.serialization.internal.ArrayListClassDesc
-import kotlinx.serialization.internal.StringDescriptor
 import retrofit2.Call
-import java.util.*
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 object EventContent {
 
@@ -24,7 +23,7 @@ object EventContent {
         val create = createClient.create(EventApi::class.java)
         val lastEvents = create.getLastEvents()
 
-        lastEvents.enqueue(object : Callback<EventContent.EventList> {
+        lastEvents.enqueue(object : Callback<EventList> {
             override fun onFailure(call: Call<EventList>, t: Throwable) {
                 onResult(false, EventList(events = emptyList(), more = false))
             }
@@ -54,22 +53,24 @@ object EventContent {
         val source: String,
         val type: String,
         val alertState: String,
-        val timestamp: String
+        @Serializable(with = DateSerializer::class)
+        val timestamp: Date
         //val extra
         //val rectangles
     )
 
-//    object EventListSerializer : KSerializer<List<Event>> {
-//        override val descriptor: SerialDescriptor = StringDescriptor.withName("FieldList")
-//
-//        override fun deserialize(input: Decoder): List<Event> {
-//
-//        }
-//
-//        override fun serialize(output: Encoder, obj: List<Event>) {
-//            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//        }
-//    }
+    @Serializer(forClass = Date::class)
+    object DateSerializer : KSerializer<Date> {
+        private val df: DateFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS", Locale.US)
 
+        override fun serialize(output: Encoder, obj: Date) {
+            output.encodeString(df.format(obj))
+        }
+
+        override fun deserialize(input: Decoder): Date {
+            return df.parse(input.decodeString())!!
+        }
+    }
 
 }
+
