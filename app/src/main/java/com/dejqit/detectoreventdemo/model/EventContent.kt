@@ -2,6 +2,10 @@ package com.dejqit.detectoreventdemo.model
 
 import com.dejqit.detectoreventdemo.api.EventApi
 import com.dejqit.detectoreventdemo.api.EventClient
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposables
+import io.reactivex.plugins.RxJavaPlugins
+import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -11,8 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object EventContent {
-
-    fun getEventList(onResult: (isSuccess: Boolean, eventList: EventList) -> Unit) {
+    var disposable = Disposables.disposed()
+    fun getEventList(onResult: (isSuccess: Boolean, eventList: EventList, error: String) -> Unit) {
 //        return listOf(
 //            Event("b171", "", "source", "type", "alertState", "2345"),
 //            Event("id2", "origin", "source", "type", "alertState", "2345"),
@@ -21,22 +25,32 @@ object EventContent {
 //        )
         val createClient = EventClient.createClient()
         val create = createClient.create(EventApi::class.java)
-        val lastEvents = create.getLastEvents()
+        disposable = create.getLastEvents()
+            .retry(5)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                onResult(true, it, "ok")
+            }, {
+                onResult(false, EventList(events = emptyList(), more = false), it.toString())
+            })
+//        lastEvents.
 
-        lastEvents.enqueue(object : Callback<EventList> {
-            override fun onFailure(call: Call<EventList>, t: Throwable) {
-                onResult(false, EventList(events = emptyList(), more = false))
-            }
 
-            override fun onResponse(call: Call<EventList>, response: Response<EventList>) {
-                response.body()?.let {
-                    onResult(true, it)
-                    return
-                }
-                onResult(false, EventList(events = emptyList(), more = false))
-            }
-
-        })
+//            .enqueue(object : Callback<EventList> {
+//            override fun onFailure(call: Call<EventList>, t: Throwable) {
+//                onResult(false, EventList(events = emptyList(), more = false), t.toString())
+//            }
+//
+//            override fun onResponse(call: Call<EventList>, response: Response<EventList>) {
+//                response.body()?.let {
+//                    onResult(true, it, "OK")
+//                    return
+//                }
+//                onResult(false, EventList(events = emptyList(), more = false), "Response empty")
+//            }
+//
+        //)
     }
 
     @Serializable()

@@ -2,6 +2,7 @@ package com.dejqit.detectoreventdemo.api
 
 import android.annotation.SuppressLint
 import com.dejqit.detectoreventdemo.BuildConfig
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.serializationConverterFactory
 import kotlinx.serialization.json.JSON
 import okhttp3.*
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 object EventClient {
 
-    private const val BASE_URL = "http://try.axxonsoft.com:8000"
+    private const val BASE_URL = "http://try.axxonsoft.com:8000/asip-api/"
 
     fun createClient(): Retrofit {
         val contentType = MediaType.get("application/json")
@@ -19,6 +20,7 @@ object EventClient {
             .addConverterFactory(serializationConverterFactory(contentType, JSON(strictMode = false)))
             .baseUrl(BASE_URL)
             .client(provideOkHTTPClient())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
     }
 

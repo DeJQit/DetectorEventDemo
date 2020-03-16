@@ -19,6 +19,10 @@ class EventViewModel : ViewModel() {
     val isListEmpty: LiveData<Boolean>
         get() = _isListEmpty
 
+    // Flag when list is empty
+    val isLastError: LiveData<Boolean>
+        get() = _isLastError
+
     // Flag when list is loading
     val isListLoading: LiveData<Boolean>
         get() = _isListLoading
@@ -37,18 +41,27 @@ class EventViewModel : ViewModel() {
         value = false
     }
 
+    private val _isLastError = MutableLiveData<Boolean>().apply {
+        value = true
+    }
+
     fun fetchEventList () {
         _isListLoading.value = true
-        EventContent.getEventList { isSuccess, eventList ->
+
+        EventContent.getEventList { isSuccess, eventList, error ->
             _isListLoading.value = false
             if (isSuccess) {
                 _listEvent.value = eventList.events
                 _isListEmpty.value = eventList.events.isEmpty()
+                _isLastError.value = false
             } else {
                 _listEvent.value = emptyList()
                 _isListEmpty.value = true
+                _text.value = "Error: $error"
+                _isLastError.value = true
             }
         }
+
     }
 
 
