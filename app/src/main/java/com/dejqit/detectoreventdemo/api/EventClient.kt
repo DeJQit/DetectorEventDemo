@@ -1,6 +1,6 @@
 package com.dejqit.detectoreventdemo.api
 
-import android.annotation.SuppressLint
+import android.util.Log
 import com.dejqit.detectoreventdemo.BuildConfig
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.serializationConverterFactory
@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit
 object EventClient {
 
     private const val BASE_URL = "http://try.axxonsoft.com:8000/asip-api/"
+//    private const val BASE_URL = "http://62.251.52.165:8000/"
 
     fun createClient(): Retrofit {
         val contentType = MediaType.get("application/json")
@@ -29,12 +30,19 @@ object EventClient {
         client.connectTimeout(20, TimeUnit.SECONDS)
         client.readTimeout(30, TimeUnit.SECONDS)
         client.writeTimeout(30, TimeUnit.SECONDS)
+
+        // Debug HTTP requests with headers
         if (BuildConfig.DEBUG) {
-            client.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            client.addInterceptor(
+                HttpLoggingInterceptor { Log.i("OKHTTP3", it) }.setLevel(
+                    HttpLoggingInterceptor.Level.HEADERS
+                )
+            )
+//            client.addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
         }
         // Authentication
         client.authenticator { _: Route?, response: Response ->
-            val basicCredentials = Credentials.basic("root", "root");
+            val basicCredentials = Credentials.basic("root", "root")
             return@authenticator response.request().newBuilder().header("Authorization", basicCredentials).build()
         }
 

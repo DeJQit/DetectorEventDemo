@@ -4,25 +4,18 @@ import com.dejqit.detectoreventdemo.api.EventApi
 import com.dejqit.detectoreventdemo.api.EventClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposables
-import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 object EventContent {
-    var disposable = Disposables.disposed()
+
+    private var disposable = Disposables.disposed()
+
     fun getEventList(onResult: (isSuccess: Boolean, eventList: EventList, error: String) -> Unit) {
-//        return listOf(
-//            Event("b171", "", "source", "type", "alertState", "2345"),
-//            Event("id2", "origin", "source", "type", "alertState", "2345"),
-//            Event("id3", "origin", "source", "type", "alertState", "2345"),
-//            Event("id4", "origin", "source", "type", "alertState", "2345")
-//        )
+
         val createClient = EventClient.createClient()
         val create = createClient.create(EventApi::class.java)
         disposable = create.getLastEvents()
@@ -30,27 +23,12 @@ object EventContent {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                onResult(true, it, "ok")
+                // On Request Successful
+                onResult(true, it, "OK")
             }, {
+                // On Error occurred
                 onResult(false, EventList(events = emptyList(), more = false), it.toString())
             })
-//        lastEvents.
-
-
-//            .enqueue(object : Callback<EventList> {
-//            override fun onFailure(call: Call<EventList>, t: Throwable) {
-//                onResult(false, EventList(events = emptyList(), more = false), t.toString())
-//            }
-//
-//            override fun onResponse(call: Call<EventList>, response: Response<EventList>) {
-//                response.body()?.let {
-//                    onResult(true, it, "OK")
-//                    return
-//                }
-//                onResult(false, EventList(events = emptyList(), more = false), "Response empty")
-//            }
-//
-        //)
     }
 
     @Serializable()
@@ -67,8 +45,8 @@ object EventContent {
         val source: String,
         val type: String,
         val alertState: String,
-        @Serializable(with = DateSerializer::class)
-        val timestamp: Date
+        //@Serializable(with = DateSerializer::class)
+        val timestamp: String
         //val extra
         //val rectangles
     )

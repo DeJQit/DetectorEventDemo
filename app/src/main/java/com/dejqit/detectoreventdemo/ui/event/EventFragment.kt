@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dejqit.detectoreventdemo.adapter.EventListAdapter
 import com.dejqit.detectoreventdemo.databinding.FragmentEventBinding
@@ -40,7 +39,7 @@ class EventFragment : Fragment() {
         adapter = EventListAdapter(fragmentEventBinding.eventModelView!!)
         val layoutManager = LinearLayoutManager(activity)
         list.layoutManager = layoutManager
-        list.addItemDecoration(DividerItemDecoration(activity, layoutManager.orientation))
+//        list.addItemDecoration(DividerItemDecoration(activity, layoutManager.orientation))
         list.adapter = adapter
 
         // Setup observes
