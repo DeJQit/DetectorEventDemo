@@ -5,6 +5,7 @@
 
     <data>
         <import type="android.view.View" />
+        <import type="com.dejqit.detectoreventdemo.ui.event.EventViewModel.EventListState"/>
         <variable
             name="eventModelView"
             type="com.dejqit.detectoreventdemo.ui.event.EventViewModel" />
@@ -21,25 +22,7 @@
             android:id="@+id/list"
             android:scrollbars="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="@{safeUnbox(eventModelView.isListLoading() ?  View.GONE : View.VISIBLE)}" />
-
-
-        <TextView
-            android:id="@+id/message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@{eventModelView.text}"
-            android:visibility="@{safeUnbox(eventModelView.isListEmpty() ? View.VISIBLE : View.GONE)}"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="match_parent"/>
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -49,7 +32,37 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="40sp"
-            android:visibility="@{safeUnbox(eventModelView.isListLoading() ? View.VISIBLE : View.GONE)}"
+            android:visibility="@{safeUnbox(eventModelView.state == EventListState.LOADING ? View.VISIBLE : View.GONE)}"
+            />
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@{eventModelView.text}"
+            android:visibility="@{safeUnbox((eventModelView.state == EventListState.ERROR || eventModelView.state == EventListState.EMPTY) ? View.VISIBLE : View.GONE)}"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/retryButton"
+            android:text="@string/button_retry"
+            android:visibility="@{safeUnbox((eventModelView.state == EventListState.ERROR) ? View.VISIBLE : View.GONE)}"
+            android:onClick="@{() -> eventModelView.fetchEventList()}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintTop_toBottomOf="@id/message"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

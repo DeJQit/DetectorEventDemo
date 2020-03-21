@@ -15,50 +15,39 @@ class EventViewModel : ViewModel() {
     val listEvent: LiveData<List<EventContent.Event>>
         get() = _listEvent
 
-    // Flag when list is empty
-    val isListEmpty: LiveData<Boolean>
-        get() = _isListEmpty
-
-    // Flag when list is empty
-    val isLastError: LiveData<Boolean>
-        get() = _isLastError
-
-    // Flag when list is loading
-    val isListLoading: LiveData<Boolean>
-        get() = _isListLoading
-
-    private val _text = MutableLiveData<String>().apply {
-        value = "Event list empty."
+    // Event list state
+    enum class EventListState {
+        LOADING, // When list loading, show loading indicator
+        EMPTY,  // When list is empty, display label "Empty"
+        ERROR,  // When error occur, display label with error and show button retry
+        DONE    // All done
     }
+
+    val state: LiveData<EventListState>
+        get() = _listState
+
+    private val _text  = MutableLiveData<String>()
 
     private val _listEvent = MutableLiveData<List<EventContent.Event>>()
 
-    private val _isListEmpty = MutableLiveData<Boolean>().apply {
-        value = true
-    }
+    private val _listState = MutableLiveData<EventListState>()
 
-    private val _isListLoading = MutableLiveData<Boolean>().apply {
-        value = false
-    }
-
-    private val _isLastError = MutableLiveData<Boolean>().apply {
-        value = true
-    }
 
     fun fetchEventList () {
-        _isListLoading.value = true
-
+        _listState.value = EventListState.LOADING
         EventContent.getEventList { isSuccess, eventList, error ->
-            _isListLoading.value = false
             if (isSuccess) {
                 _listEvent.value = eventList.events
-                _isListEmpty.value = eventList.events.isEmpty()
-                _isLastError.value = false
+                if(eventList.events.isEmpty()) {
+                    _listState.value = EventListState.EMPTY
+                    _text.value = "Event list empty."
+                } else {
+                    _listState.value = EventListState.DONE
+                }
             } else {
                 _listEvent.value = emptyList()
-                _isListEmpty.value = true
                 _text.value = "Error: $error"
-                _isLastError.value = true
+                _listState.value = EventListState.ERROR
             }
         }
 
