@@ -25,7 +25,7 @@ class EventListHolder constructor(private val dataBinding: ViewDataBinding, priv
         }
 
         // Download snapshot
-        itemView.snapshotImage.setImageResource(R.drawable.film_strip)
+        itemView.snapshotImage.setImageResource(R.drawable.ic_film_strip)
         itemView.snapshotImage.clipToOutline = true
         CameraContent.getCameraSnapshotForEvent(event, 1024)
         { isSuccess, snapshot ->
