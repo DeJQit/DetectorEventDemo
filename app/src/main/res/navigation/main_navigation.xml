@@ -14,5 +14,17 @@
         android:id="@+id/loginFragment"
         android:name="com.dejqit.detectoreventdemo.ui.login.LoginFragment"
         android:label="login_fragment"
-        tools:layout="@layout/login_fragment" />
+        tools:layout="@layout/login_fragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_loginAddFragment"
+            app:destination="@id/loginAddFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popExitAnim="@anim/anim_right_to_left"
+            app:enterAnim="@anim/nav_default_enter_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginAddFragment"
+        android:name="com.dejqit.detectoreventdemo.ui.login.LoginAddFragment"
+        android:label="fragment_login_add"
+        tools:layout="@layout/fragment_login_add" />
 </navigation>

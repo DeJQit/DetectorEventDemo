@@ -6,4 +6,5 @@
     <string name="title_camera_snapshot">CameraSnapshot</string>
     <string name="camera_unknown">Unknown Camera</string>
     <string name="button_retry">Retry</string>
+    <string name="list_empty">List empty</string>
 </resources>
