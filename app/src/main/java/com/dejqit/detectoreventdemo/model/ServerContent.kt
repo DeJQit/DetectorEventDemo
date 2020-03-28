@@ -37,9 +37,9 @@ object ServerContent {
     @Serializable()
     data class LoginServerItem (
         val name: String,
-        val description: String,
         val base_url: String,
         val username: String,
-        val password: String
+        val password: String,
+        var description: String
     )
 }

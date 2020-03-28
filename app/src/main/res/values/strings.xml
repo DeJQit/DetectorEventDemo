@@ -7,4 +7,14 @@
     <string name="camera_unknown">Unknown Camera</string>
     <string name="button_retry">Retry</string>
     <string name="list_empty">List empty</string>
+    <string name="button_save">Save</string>
+    <string name="server_name">Server Name</string>
+    <string name="server_url">Server URL</string>
+    <string name="user_name">User name</string>
+    <string name="password">Password</string>
+    <string name="error_field_empty">Field can\'t be empty</string>
+    <string name="error_field_url_invalid">URL is not valid</string>
+    <string name="button_try_to_connect">Try to connect</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_cancel">Cancel</string>
 </resources>

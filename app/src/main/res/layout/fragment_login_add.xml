@@ -1,78 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="@dimen/fragment_horizontal_margin"
+    android:orientation="vertical"
     tools:context=".ui.login.LoginAddFragment">
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_margin="@dimen/fragment_horizontal_margin"
-        >
-
-        <TextView
-            android:id="@+id/serverNameLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Server Name" />
-
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/serverName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:autofillHints="Server Name" />
+            app:errorEnabled="true"
+            android:hint="@string/server_name">
 
-        <TextView
-            android:id="@+id/serverUrlLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Server URL" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="40"
+                    android:inputType="text"
+                    android:autofillHints="name"
+                    />
 
-        <EditText
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/serverUrl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            tools:ignore="TextFields" />
+            app:errorEnabled="true"
+            android:hint="@string/server_url">
 
-        <TextView
-            android:id="@+id/userNameLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="User name"  />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="64"
+                    android:inputType="textUri"
+                    android:autofillHints="url"
+                    />
 
-        <EditText
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/userName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName" />
+            app:errorEnabled="true"
+            android:hint="@string/user_name">
 
-        <TextView
-            android:id="@+id/passwordLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Password" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="40"
+                    android:inputType="textPersonName"
+                    android:autofillHints="username"
+                    />
 
-        <EditText
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPassword" />
+            app:passwordToggleEnabled="true"
+            app:errorEnabled="true"
+            android:hint="@string/password">
 
-        <Button
-            android:id="@+id/saveButton"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="40"
+                    android:inputType="textPassword" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/serverConnectionLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save" />
+            android:orientation="horizontal"
+            android:background="@drawable/background_rect"
+            android:visibility="gone"
+            >
 
+                <ProgressBar
+                    android:id="@+id/serverConnectionProgressBar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
-</FrameLayout>
+                <TextView
+                    android:id="@+id/serverConnectionLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/serverConnectionProgressBar"
+                    app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/tryConnectButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/button_try_to_connect"
+            />
+
+</LinearLayout>

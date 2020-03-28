@@ -19,12 +19,18 @@
             android:id="@+id/action_loginFragment_to_loginAddFragment"
             app:destination="@id/loginAddFragment"
             app:popUpTo="@id/loginFragment"
-            app:popExitAnim="@anim/anim_right_to_left"
-            app:enterAnim="@anim/nav_default_enter_anim" />
+            app:popExitAnim="@anim/anim_bottom_slide_out"
+            app:enterAnim="@anim/anim_bottom_slide_in" />
+        <action
+            android:id="@+id/action_loginFragment_to_eventFragment"
+            app:destination="@id/eventFragment"
+            app:enterAnim="@anim/anim_right_to_left"
+            app:popExitAnim="@anim/anim_left_to_right" />
     </fragment>
     <fragment
         android:id="@+id/loginAddFragment"
         android:name="com.dejqit.detectoreventdemo.ui.login.LoginAddFragment"
         android:label="fragment_login_add"
+        android:parentActivityName ="@id/loginFragment"
         tools:layout="@layout/fragment_login_add" />
 </navigation>
