@@ -3,9 +3,12 @@ package com.dejqit.detectoreventdemo.ui.event
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.dejqit.detectoreventdemo.api.EventClient
 import com.dejqit.detectoreventdemo.model.EventContent
 
 class EventViewModel : ViewModel() {
+
+    var serverId: Int = 0
 
     // Background text
     val text: LiveData<String>
@@ -33,22 +36,29 @@ class EventViewModel : ViewModel() {
     private val _listState = MutableLiveData<EventListState>()
 
 
-    fun fetchEventList () {
+    fun fetchEventList() {
         _listState.value = EventListState.LOADING
-        EventContent.getEventList { isSuccess, eventList, error ->
-            if (isSuccess) {
-                _listEvent.value = eventList.events
-                if(eventList.events.isEmpty()) {
-                    _listState.value = EventListState.EMPTY
-                    _text.value = "Event list empty."
+        try {
+            val client = EventClient.ServerStorage.getClient(serverId)
+            EventContent.getEventList(client) { isSuccess, eventList, error ->
+                if (isSuccess) {
+                    _listEvent.value = eventList.events
+                    if (eventList.events.isEmpty()) {
+                        _listState.value = EventListState.EMPTY
+                        _text.value = "Event list empty."
+                    } else {
+                        _listState.value = EventListState.DONE
+                    }
                 } else {
-                    _listState.value = EventListState.DONE
+                    _listEvent.value = emptyList()
+                    _text.value = "Error: $error"
+                    _listState.value = EventListState.ERROR
                 }
-            } else {
-                _listEvent.value = emptyList()
-                _text.value = "Error: $error"
-                _listState.value = EventListState.ERROR
             }
+        } catch (e: Exception) {
+            _listEvent.value = emptyList()
+            _text.value = "Error: $e"
+            _listState.value = EventListState.ERROR
         }
 
     }

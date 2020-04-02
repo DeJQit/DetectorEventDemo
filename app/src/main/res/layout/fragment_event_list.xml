@@ -2,7 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <import type="android.view.View"/>
-
         <import type="com.dejqit.detectoreventdemo.util.BindingConverters" />
         <variable
             name="eventData"
@@ -25,12 +24,21 @@
 <!--            android:textAppearance="?attr/textAppearanceListItem"-->
 <!--            android:text="@{eventData.id}"-->
 <!--            android:textColor="@android:color/black"/>-->
+        <ImageView
+            android:id="@+id/snapshotImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/background_rect"
+            android:contentDescription="@string/title_camera_snapshot"
+            android:scaleType="fitXY" />
 
         <TextView
             android:id="@+id/cameraName"
             android:layout_margin="@dimen/text_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/snapshotImage"
             android:text="@string/camera_unknown"
             android:textAppearance="?attr/textAppearanceListItem"
             android:textColor="@android:color/black" />
@@ -57,16 +65,6 @@
             android:text="@{BindingConverters.formatDateTime(eventData.timestamp)}"
             android:textColor="@android:color/black"/>
 
-        <ImageView
-            android:id="@+id/snapshotImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/eventType"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="@dimen/text_margin"
-            android:background="@drawable/background_rect"
-            android:contentDescription="@string/title_camera_snapshot"
-            android:scaleType="fitXY" />
 
     </RelativeLayout>
 

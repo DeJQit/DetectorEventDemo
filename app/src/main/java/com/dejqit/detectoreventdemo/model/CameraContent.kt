@@ -2,26 +2,23 @@ package com.dejqit.detectoreventdemo.model
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.dejqit.detectoreventdemo.api.CameraApi
-import com.dejqit.detectoreventdemo.api.EventClient
 import com.dejqit.detectoreventdemo.model.EventContent.Event
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposables
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.Serializable
+import retrofit2.Retrofit
 import java.util.function.Consumer
 
 object CameraContent {
 
-    private var cameraListDisposables = Disposables.disposed()
-    private var cameraSnapshotDisposables = Disposables.disposed()
-
-    fun getCameraList(onResult: (isSuccess: Boolean, cameraList: CameraList, error: String) -> Unit) {
-        val createClient = EventClient.createClient()
-        val create = createClient.create(CameraApi::class.java)
-        cameraListDisposables = create.getCameraList()
-            .cache()
+    fun getCameraList(
+        client: Retrofit,
+        onResult: (isSuccess: Boolean, cameraList: CameraList, error: String) -> Unit
+    ): Disposable? {
+        val create = client.create(CameraApi::class.java)
+        return create.getCameraList()
             .retry(5)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -35,10 +32,11 @@ object CameraContent {
     }
 
     fun getCameraForEvent (
+        client: Retrofit,
         event: Event,
         onResult: (isSuccess: Boolean, camera: Camera?) -> Unit)
     {
-        getCameraList { isSuccess, cameraList, _ ->
+        getCameraList(client) { isSuccess, cameraList, _ ->
             if(isSuccess) {
                 cameraList.cameras.forEach(Consumer { cam ->
                     cam.videoStreams.forEach(Consumer {
@@ -53,12 +51,13 @@ object CameraContent {
     }
 
     fun getCameraSnapshotForEvent(
+        client: Retrofit,
         event: Event,
         width: Int,
         onResult: (isSuccess: Boolean, snapshot: Bitmap?) -> Unit
-    ) {
-        cameraSnapshotDisposables = EventClient.createClient().create(CameraApi::class.java)
-            .getCameraSnapshot(event.source.removePrefix("hosts/"), event.timestamp, width, 0)
+    ): Disposable? {
+        val create = client.create(CameraApi::class.java)
+            return create.getCameraSnapshot(event.source.removePrefix("hosts/"), event.timestamp, width, 0)
             .retry(5)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -68,7 +67,6 @@ object CameraContent {
                 },
                 {
                     onResult(false, null)
-                    Log.d("CAM", it.toString())
                 }
             )
     }

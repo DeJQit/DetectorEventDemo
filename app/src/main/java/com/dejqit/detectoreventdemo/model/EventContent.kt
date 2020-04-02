@@ -1,24 +1,24 @@
 package com.dejqit.detectoreventdemo.model
 
 import com.dejqit.detectoreventdemo.api.EventApi
-import com.dejqit.detectoreventdemo.api.EventClient
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposables
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.*
+import retrofit2.Retrofit
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 object EventContent {
 
-    private var disposable = Disposables.disposed()
+    fun getEventList(
+        client: Retrofit,
+        onResult: (isSuccess: Boolean, eventList: EventList, error: String) -> Unit
+    ): Disposable? {
 
-    fun getEventList(onResult: (isSuccess: Boolean, eventList: EventList, error: String) -> Unit) {
-
-        val createClient = EventClient.createClient()
-        val create = createClient.create(EventApi::class.java)
-        disposable = create.getLastEvents()
+        val create = client.create(EventApi::class.java)
+        return create.getLastEvents()
             .retry(5)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

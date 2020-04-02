@@ -1,51 +1,75 @@
 package com.dejqit.detectoreventdemo.ui.login
 
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.Patterns
 import android.view.*
 import android.widget.EditText
-import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.dejqit.detectoreventdemo.R
+import com.dejqit.detectoreventdemo.api.EventClient
 import com.dejqit.detectoreventdemo.model.ServerContent
 import io.reactivex.Observable
-import kotlinx.android.synthetic.main.fragment_login_add.*
-import java.util.*
-import kotlin.collections.ArrayList
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposables
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_login_add.*
 
 class LoginAddFragment : Fragment() {
 
-    private lateinit var model: ArrayList<ServerContent.LoginServerItem>
+    private lateinit var menu: Menu
+    private lateinit var deleteDialog: AlertDialog
+    private var modelIndex: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        model = arguments?.getSerializable("viewModel") as ArrayList<ServerContent.LoginServerItem>
+        modelIndex = arguments?.getInt("serverListModelIndex", -1)!!
 
-        activity?.title = "Add new server"
+        if(modelIndex < 0)
+            activity?.title = "Add new server"
+        else
+            activity?.title = "Edit server"
+
         setHasOptionsMenu(true)
+
+        activity?.let {
+            val deleteDlg = AlertDialog.Builder(it)
+                .setMessage("Delete this server?")
+                .setPositiveButton(android.R.string.yes) { _, _ ->
+                    EventClient.ServerStorage.deleteServer(modelIndex)
+                    findNavController().navigateUp()
+                }
+                .setNegativeButton(android.R.string.no) { _,_ -> }
+            deleteDialog = deleteDlg.create()
+        }
 
         return inflater.inflate(R.layout.fragment_login_add, container, false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
+        this.menu = menu!!
+
         inflater?.inflate(R.menu.menu_dialog_add_server, menu)
+
+        menu.findItem(R.id.menu_button_save)?.isEnabled = false
+
+        // When add mode, hide delete action
+        if(modelIndex < 0) {
+            menu.findItem(R.id.menu_button_delete)?.isVisible = false
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
-            R.id.menu_button_delete -> true
-            R.id.menu_button_save -> true
+            R.id.menu_button_delete -> { onButtonDelete(); true }
+            R.id.menu_button_save -> { onButtonSave(); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -54,33 +78,57 @@ class LoginAddFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-
         // Server Name and URL validation
         val serverNameValid = getTextEditObservable(serverName?.editText)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { s -> s.isNotBlank() }
-            .doOnNext {if(it) serverName?.error = "" else serverName?.error = getString(R.string.error_field_empty)}
+            .doOnNext { serverName?.error = if(it) "" else  getString(R.string.error_field_empty) }
             .distinctUntilChanged()
 
-        val serverUrlVaild = getTextEditObservable(serverUrl?.editText)
+        val serverUrlValid = getTextEditObservable(serverUrl?.editText)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { s -> Patterns.WEB_URL.matcher(s).matches() }
-            .doOnNext {if(it) serverName?.error = "" else serverName?.error = getString(R.string.error_field_url_invalid)}
+            .doOnNext { serverUrl?.error = if(it)  "" else  getString(R.string.error_field_url_invalid) }
             .distinctUntilChanged()
 
-        val tryConnectButtonEnable = Observable.zip(serverNameValid, serverUrlVaild, BiFunction { b1, b2 -> b1 && b2})
+        val tryConnectButtonEnable = Observable.combineLatest(serverNameValid, serverUrlValid, BiFunction<Boolean?, Boolean?, Boolean> { b1, b2 -> b2 && b1 })
             .distinctUntilChanged()
 
-        tryConnectButtonEnable
-            .subscribe {
-                Log.i("TEST", "FIRE")
+        val d= tryConnectButtonEnable.subscribe {
+                tryConnectButton.isEnabled = it
+                menu.findItem(R.id.menu_button_save)?.isEnabled = it
             }
 
-//        tryConnectButton.enab
+        tryConnectButton.setOnClickListener {
+            serverConnectionLayout.visibility = View.VISIBLE
+            serverConnectionProgressBar.visibility = View.VISIBLE
+            serverConnectionLabel.text = getString(R.string.string_loading)
 
-//            tryConnectButton.setOnClickListener {}
+            try {
+                val client = EventClient.createClient(getServerItem())
+                ServerContent.getServerVersion(client) { isSuccess, version, error ->
+                    serverConnectionProgressBar.visibility = View.INVISIBLE
+                    if(isSuccess) {
+                        serverConnectionLabel.text = version.version
+                    } else {
+                        serverConnectionLabel.text  = "Error: $error"
+                    }
+                }
+            } catch (e: Exception) {
+                serverConnectionProgressBar.visibility = View.INVISIBLE
+                serverConnectionLabel.text  = "Error: $e"
+            }
+        }
+
+        // When index is not negative, then edit fields
+        if(modelIndex >= 0) {
+            serverName?.editText?.setText(EventClient.ServerStorage.getServer(modelIndex).name)
+            serverUrl?.editText?.setText(EventClient.ServerStorage.getServer(modelIndex).base_url)
+            userName?.editText?.setText(EventClient.ServerStorage.getServer(modelIndex).username)
+        }
+
         }
 
     private fun getTextEditObservable(textEdit: EditText?): Observable<String> {
@@ -100,24 +148,32 @@ class LoginAddFragment : Fragment() {
         }
     }
 
-    fun addServerItem() {
-//        val serverName = this.serverName.text.toString()
-//        val url = this.serverUrl.text.toString()
-//        val username = this.userName.text.toString()
-//        val password = this.password.text.toString()
-//        var description = ""
-//
-//        val item = ServerContent.LoginServerItem(
-//            name = serverName,
-//            base_url = url,
-//            username = username,
-//            password = password,
-//            description = description
-//        )
-//
-//
-//
-//        model.add(item)
+    private fun getServerItem(): EventClient.LoginServerItem {
+        val serverName = serverName.editText?.text.toString()
+        val url = serverUrl.editText?.text.toString()
+        val username = userName.editText?.text.toString()
+        val password = password.editText?.text.toString()
+
+        return EventClient.LoginServerItem(
+            name = serverName,
+            base_url = url,
+            username = username,
+            password = password
+        )
+    }
+
+    private fun onButtonSave() {
+
+        if(modelIndex >= 0)
+            EventClient.ServerStorage.replaceServer(modelIndex, getServerItem())
+        else
+            EventClient.ServerStorage.addServer(getServerItem())
+
+        findNavController().navigateUp()
+    }
+
+    private fun onButtonDelete() {
+        deleteDialog.show()
     }
 
 }

@@ -3,11 +3,14 @@ package com.dejqit.detectoreventdemo.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.dejqit.detectoreventdemo.ui.event.EventViewModel
 import com.dejqit.detectoreventdemo.databinding.FragmentEventListBinding
 import com.dejqit.detectoreventdemo.model.EventContent
+import com.dejqit.detectoreventdemo.ui.event.EventViewModel
 
-class EventListAdapter(private val eventViewModel: EventViewModel) : RecyclerView.Adapter<EventListHolder>() {
+class EventListAdapter(
+    private val eventViewModel: EventViewModel,
+    private val server: Int
+) : RecyclerView.Adapter<EventListHolder>() {
     var eventList: List<EventContent.Event> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventListHolder {
@@ -21,7 +24,7 @@ class EventListAdapter(private val eventViewModel: EventViewModel) : RecyclerVie
     }
 
     override fun onBindViewHolder(holder: EventListHolder, position: Int) {
-        holder.bind(eventList[position])
+        holder.bind(server, eventList[position])
     }
 
     fun updateEventList(eventList: List<EventContent.Event>) {

@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.fragment_event.*
 class EventFragment : Fragment() {
 
     //private lateinit var eventViewModel: EventViewModel
+    private var serverId: Int = 0
     private lateinit var fragmentEventBinding: FragmentEventBinding
     private lateinit var adapter: EventListAdapter
 
@@ -23,10 +24,17 @@ class EventFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+
+        serverId = arguments?.getInt("selectedServer")!!
+
         fragmentEventBinding = FragmentEventBinding.inflate(inflater, container, false).apply {
-            eventModelView = ViewModelProviders.of(this@EventFragment).get(EventViewModel::class.java)
+            val model = ViewModelProviders.of(this@EventFragment).get(EventViewModel::class.java)
+            model.serverId = serverId
+            eventModelView = model
             lifecycleOwner = viewLifecycleOwner
         }
+
+
         return fragmentEventBinding.root
     }
 
@@ -36,7 +44,7 @@ class EventFragment : Fragment() {
         fragmentEventBinding.eventModelView?.fetchEventList()
 
         // Setup adapter
-        adapter = EventListAdapter(fragmentEventBinding.eventModelView!!)
+        adapter = EventListAdapter(fragmentEventBinding.eventModelView!!, serverId)
         val layoutManager = LinearLayoutManager(activity)
         list.layoutManager = layoutManager
 //        list.addItemDecoration(DividerItemDecoration(activity, layoutManager.orientation))

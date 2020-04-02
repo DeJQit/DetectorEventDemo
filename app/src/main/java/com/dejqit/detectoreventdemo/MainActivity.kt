@@ -3,9 +3,6 @@ package com.dejqit.detectoreventdemo
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.navigation.NavController
 import androidx.navigation.findNavController
 
 class MainActivity : AppCompatActivity() {
@@ -14,9 +11,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+//        supportActionBar?.setHomeButtonEnabled(true)
+//        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val navController = findNavController(R.id.nav_host_fragment)
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            if(destination.label == "login_fragment") {
+                supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            } else {
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -1,21 +1,21 @@
 package com.dejqit.detectoreventdemo.model
 
-import com.dejqit.detectoreventdemo.api.EventClient
 import com.dejqit.detectoreventdemo.api.ServerApi
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposables
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.Serializable
+import retrofit2.Retrofit
 
 object ServerContent {
 
-    private var disposable = Disposables.disposed()
+    fun getServerVersion(
+        client: Retrofit,
+        onResult: (isSuccess: Boolean, version: ServerVersion, error: String) -> Unit
+    ): Disposable? {
 
-    fun getServerVersion(onResult: (isSuccess: Boolean, version: ServerVersion, error: String) -> Unit) {
-
-        val createClient = EventClient.createClient()
-        val create = createClient.create(ServerApi::class.java)
-        disposable = create.getServerVersion()
+        val create = client.create(ServerApi::class.java)
+        return create.getServerVersion()
             .retry(5)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -34,12 +34,4 @@ object ServerContent {
         val version: String
     )
 
-    @Serializable()
-    data class LoginServerItem (
-        val name: String,
-        val base_url: String,
-        val username: String,
-        val password: String,
-        var description: String
-    )
 }

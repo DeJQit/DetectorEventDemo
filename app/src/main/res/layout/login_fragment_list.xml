@@ -4,7 +4,7 @@
         <import type="android.view.View"/>
         <variable
             name="server"
-            type="com.dejqit.detectoreventdemo.model.ServerContent.LoginServerItem" />
+            type="com.dejqit.detectoreventdemo.api.EventClient.LoginServerItem" />
     </data>
 
     <RelativeLayout
@@ -34,7 +34,6 @@
             android:layout_margin="@dimen/text_margin"
             android:layout_below="@id/name"
             android:textAppearance="?attr/textAppearanceListItem"
-            android:text="@{server.description}"
             android:textColor="@android:color/black"/>
 
     </RelativeLayout>
